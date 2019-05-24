@@ -7,6 +7,11 @@ var mqttHandler = require('./MQTTHandler');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
 var mqttClient = new mqttHandler();
 mqttClient.connect();
@@ -21,6 +26,27 @@ app.get('/ligth', function (req, res) {
             console.log(snap[key]);
             if(key !== "000"){
                 result.push({ "User": key, "Name": snap[key].Name, "Message": snap[key].Message, "Status": snap[key].Status })
+            }
+        }
+        res.json(result);
+        ligthReference.off("value");
+	}, 
+	function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
+        res.send("The read failed: " + errorObject.code);
+	});
+});
+
+app.get('/ligthstatus', function (req, res) {
+    console.log("HTTP Get Request");
+	var ligthReference = firebase.database().ref("/Ligths/");
+	ligthReference.on("value", function(snapshot) {
+        let result = {};
+        let snap = snapshot.val();
+        for(var key in snap) {
+            console.log(snap[key]);
+            if(key === "000"){
+                result = { "User": key, "Name": snap[key].Name, "Message": snap[key].Message, "Status": snap[key].Status }
             }
         }
         res.json(result);
