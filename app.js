@@ -15,8 +15,15 @@ app.get('/ligth', function (req, res) {
     console.log("HTTP Get Request");
 	var ligthReference = firebase.database().ref("/Ligths/");
 	ligthReference.on("value", function(snapshot) {
-        console.log(snapshot.val());
-        res.json(snapshot.val());
+        let result = [];
+        let snap = snapshot.val();
+        for(var key in snap) {
+            console.log(snap[key]);
+            if(key !== "000"){
+                result.push({ "User": key, "Name": snap[key].Name, "Message": snap[key].Message, "Status": snap[key].Status })
+            }
+        }
+        res.json(result);
         ligthReference.off("value");
 	}, 
 	function (errorObject) {
