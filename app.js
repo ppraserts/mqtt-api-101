@@ -49,15 +49,25 @@ app.post('/ligth', function (req, res) {
     // Publsh Message to MQTT
     mqttClient.sendMessage(status);
 
-    // Save Data to Firebase
-	var referencePath = '/Ligths/'+user+'/';
+    // Save BASE Data to Firebase
+	var referencePath = '/Ligths/000/';
 	var ligthReference = firebase.database().ref(referencePath);
-	ligthReference.set({Name: name, Message: message, Status: status}, function(error) {
+	ligthReference.set({Name: 'ligth', Message: message, Status: status}, function(error) {
         if (error) {
             res.status(400).send({ message: 'Data could not be saved.' + error });
         } 
         else {
-            res.status(200).json({ message: 'Data saved successfully.' });
+            // Save Data to Firebase
+            var referencePath = '/Ligths/'+user+'/';
+            var ligthReference = firebase.database().ref(referencePath);
+            ligthReference.set({Name: name, Message: message, Status: status}, function(error) {
+                if (error) {
+                    res.status(400).send({ message: 'Data could not be saved.' + error });
+                } 
+                else {
+                    res.status(200).json({ message: 'Data saved successfully.' });
+                }
+            });
         }
     });
 });
